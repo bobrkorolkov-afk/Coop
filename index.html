@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>БЭДТРИП — acid schizo-punk шутер 2×2</title>
+  <meta name="description" content="Кислотный шизо-панк 3D шутер 2×2: слайды, бхоп, войс-ускорение и абсурдные карточки." />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%92%80%3C/text%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="./src/styles.css" />
+  <script src="./config.js"></script>
+</head>
+<body>
+  <div id="app">
+    <canvas id="game-canvas"></canvas>
+
+    <!-- ===================== MENU ===================== -->
+    <div id="menu" class="screen">
+      <div class="menu-bg"></div>
+      <div class="menu-inner">
+        <h1 class="game-title glitch-text" data-text="БЭДТРИП">БЭДТРИП</h1>
+        <p class="game-sub">acid schizo-punk шутер 2×2 · слайды · бхоп · голос = газ</p>
+
+        <div class="menu-card">
+          <button class="btn btn-big" id="btn-play">🎮 ИГРАТЬ</button>
+          <button class="btn" id="btn-online">🌐 ОНЛАЙН 2×2 (комната)</button>
+          <button class="btn" id="btn-heroes">🧬 ГЕРОИ</button>
+          <button class="btn" id="btn-settings">⚙️ НАСТРОЙКИ</button>
+          <button class="btn" id="btn-leaderboard">🏆 РЕКОРДЫ</button>
+        </div>
+
+        <div class="menu-foot">
+          <span class="pill">WASD — движение</span>
+          <span class="pill">SHIFT/C — слайд</span>
+          <span class="pill">SPACE — прыжок / бхоп</span>
+          <span class="pill">Q / E / F — способности</span>
+          <span class="pill pill-hot">🎤 болтай — беги быстрее</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================== HERO SELECT ===================== -->
+    <div id="hero-select" class="screen hidden">
+      <div class="panel wide">
+        <h2 class="panel-title">ВЫБЕРИ ГЕРОЯ</h2>
+        <div id="hero-grid" class="hero-grid"></div>
+        <div class="row gap">
+          <button class="btn btn-big" id="btn-hero-confirm">В БОЙ</button>
+          <button class="btn" id="btn-hero-back">НАЗАД</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================== ONLINE LOBBY ===================== -->
+    <div id="online-lobby" class="screen hidden">
+      <div class="panel">
+        <h2 class="panel-title">ОНЛАЙН-КОМНАТА</h2>
+        <p class="hint">Хост создаёт комнату, друг вводит код. Голос включается автоматически.</p>
+        <div class="row gap">
+          <button class="btn btn-big" id="btn-host">СОЗДАТЬ КОМНАТУ</button>
+          <button class="btn btn-big" id="btn-join">ВОЙТИ ПО КОДУ</button>
+        </div>
+        <div id="join-row" class="row gap hidden">
+          <input id="join-code" class="input" maxlength="6" placeholder="КОД" />
+          <button class="btn" id="btn-join-go">ПОДКЛЮЧИТЬСЯ</button>
+        </div>
+        <div id="lobby-status" class="hint"></div>
+        <div id="lobby-room" class="room-code hidden">
+          <div class="room-label">КОД КОМНАТЫ</div>
+          <div class="room-value" id="room-code-value">------</div>
+          <div class="room-players" id="room-players"></div>
+          <button class="btn btn-big hidden" id="btn-start-online">НАЧАТЬ МАТЧ</button>
+        </div>
+        <button class="btn" id="btn-online-back">НАЗАД</button>
+      </div>
+    </div>
+
+    <!-- ===================== SETTINGS ===================== -->
+    <div id="settings" class="screen hidden">
+      <div class="panel">
+        <h2 class="panel-title">НАСТРОЙКИ</h2>
+        <label class="field">
+          <span>Чувствительность мыши</span>
+          <input type="range" id="set-sens" min="0.4" max="3" step="0.1" value="1.2" />
+        </label>
+        <label class="field">
+          <span>Громкость эффектов</span>
+          <input type="range" id="set-sfx" min="0" max="1" step="0.05" value="0.7" />
+        </label>
+        <label class="field">
+          <span>Громкость музыки</span>
+          <input type="range" id="set-music" min="0" max="1" step="0.05" value="0.35" />
+        </label>
+        <label class="field">
+          <span>Микрофон (голос = газ)</span>
+          <input type="range" id="set-mic" min="0" max="1" step="0.05" value="0.8" />
+        </label>
+        <label class="field check">
+          <input type="checkbox" id="set-bloom" checked />
+          <span>Кислотный bloom / глитчи</span>
+        </label>
+        <div class="row gap">
+          <button class="btn" id="btn-mic-test">🎤 ПРОВЕРИТЬ МИКРОФОН</button>
+          <button class="btn" id="btn-settings-back">ГОТОВО</button>
+        </div>
+        <div id="mic-status" class="hint"></div>
+      </div>
+    </div>
+
+    <!-- ===================== LEADERBOARD ===================== -->
+    <div id="leaderboard" class="screen hidden">
+      <div class="panel">
+        <h2 class="panel-title">🏆 РЕКОРДЫ (SUPABASE)</h2>
+        <div id="lb-list" class="lb-list">Загрузка…</div>
+        <button class="btn" id="btn-lb-back">НАЗАД</button>
+      </div>
+    </div>
+
+    <!-- ===================== HUD ===================== -->
+    <div id="hud" class="hidden">
+      <div id="crosshair"><i></i><i></i><i></i><i></i><b></b></div>
+      <div id="hitmarker" class="hidden">✕</div>
+      <div id="damage-vignette"></div>
+      <div id="fake-hat" class="hidden">🎩</div>
+
+      <div id="hud-top">
+        <div class="scorebox">
+          <div class="team team-a" id="score-a">0</div>
+          <div class="round-info"><span id="round-label">РАУНД 1</span><span id="round-timer">2:00</span></div>
+          <div class="team team-b" id="score-b">0</div>
+        </div>
+      </div>
+
+      <div id="hud-bottom-left">
+        <div class="hp-wrap">
+          <div class="hp-bar"><div id="hp-fill"></div></div>
+          <div class="hp-num" id="hp-num">100</div>
+        </div>
+        <div class="hero-badge" id="hero-badge">ШИЛО</div>
+      </div>
+
+      <div id="hud-bottom-right">
+        <div class="ammo"><span id="ammo-num">12</span><span class="ammo-max" id="ammo-max">/ 12</span></div>
+        <div class="ult-wrap">
+          <div class="ult-label">УЛЬТА [F]</div>
+          <div class="ult-bar"><div id="ult-fill"></div></div>
+        </div>
+        <div class="abilities">
+          <div class="ability" id="ab-q"><span class="ab-key">Q</span><span class="ab-name">—</span></div>
+          <div class="ability" id="ab-e"><span class="ab-key">E</span><span class="ab-name">—</span></div>
+          <div class="ability" id="ab-f"><span class="ab-key">F</span><span class="ab-name">—</span></div>
+        </div>
+      </div>
+
+      <div id="hud-cards"></div>
+      <div id="killfeed"></div>
+      <div id="voice-indicator"><span class="mic-ico">🎤</span><div class="mic-bar"><div id="mic-fill"></div></div><span id="voice-speed">×1.00</span></div>
+      <div id="speed-lines"></div>
+    </div>
+
+    <!-- ===================== CARD DRAFT ===================== -->
+    <div id="card-draft" class="screen hidden">
+      <div class="panel wide">
+        <h2 class="panel-title" id="draft-title">ДРАФТ: ВЫБЕРИ 1 ИЗ 3</h2>
+        <div id="draft-cards" class="draft-cards"></div>
+        <div class="hint">Клавиши 1 / 2 / 3 — выбор. Руины и хаос играются клавишами 3 / 4 в бою.</div>
+      </div>
+    </div>
+
+    <!-- ===================== PAUSE / END ===================== -->
+    <div id="pause" class="screen hidden">
+      <div class="panel">
+        <h2 class="panel-title">ПАУЗА</h2>
+        <button class="btn" id="btn-resume">ПРОДОЛЖИТЬ</button>
+        <button class="btn" id="btn-quit">ВЫЙТИ В МЕНЮ</button>
+      </div>
+    </div>
+
+    <div id="round-banner" class="hidden"><div class="banner-text" id="banner-text"></div><div class="banner-sub" id="banner-sub"></div></div>
+    <div id="toast" class="hidden"></div>
+    <div id="loading" class="screen"><div class="loading-inner"><div class="loading-title">БЭДТРИП</div><div class="loading-bar"><div id="loading-fill"></div></div><div class="hint">кислота загружается…</div></div></div>
+  </div>
+  <script type="module" src="./src/main.ts"></script>
+</body>
+</html>
