@@ -199,6 +199,8 @@ export class Game {
       Space: 'jump', ShiftLeft: 'crouch', ShiftRight: 'crouch', KeyC: 'crouch', ControlLeft: 'crouch',
     };
     window.addEventListener('keydown', (e) => {
+      // не перехватываем клавиши, когда игрок печатает в поле ввода
+      if (document.activeElement instanceof HTMLInputElement) return;
       if (e.code in keyMap) {
         this.input[keyMap[e.code]] = true;
         e.preventDefault();
